@@ -11,7 +11,7 @@ type PgxPoolConnMock struct {
 	pgxmock.PgxConnIface
 }
 
-// "Release" is needed by pgxpool.Conn
+// "Release" is needed by pgxpool.Conn and usually used
 func (c *PgxPoolConnMock) Release() {
 
 }
