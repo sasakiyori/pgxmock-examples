@@ -36,13 +36,14 @@ var (
 )
 
 func PgxConnHandler() error {
-	rows, err := PgxConn().Query(context.Background(), `select * from foo;`)
+	conn := PgxConn()
+	rows, err := conn.Query(context.Background(), `select * from foo;`)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		rows.Close()
-		PgxConn().Close(context.Background())
+		conn.Close(context.Background())
 	}()
 
 	var result int

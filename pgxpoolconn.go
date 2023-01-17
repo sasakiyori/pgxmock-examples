@@ -35,13 +35,14 @@ var (
 )
 
 func PgxPoolConnHandler() error {
-	rows, err := PgxPoolConn().Query(context.Background(), `select * from foo;`)
+	conn := PgxPoolConn()
+	rows, err := conn.Query(context.Background(), `select * from foo;`)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		rows.Close()
-		PgxPoolConn().Release()
+		conn.Release()
 	}()
 
 	var result int
