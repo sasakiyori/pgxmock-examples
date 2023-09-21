@@ -3,7 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v3"
 )
 
 // embed pgxmock.PgxConnIface
@@ -11,7 +12,11 @@ type PgxPoolConnMock struct {
 	pgxmock.PgxConnIface
 }
 
-// "Release" is needed by pgxpool.Conn and usually used
+// add impl by your need
+func (c *PgxPoolConnMock) Hijack() *pgx.Conn {
+	return nil
+}
+
 func (c *PgxPoolConnMock) Release() {
 
 }

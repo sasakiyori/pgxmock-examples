@@ -1,50 +1,33 @@
 package main
 
 import (
-	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/driftprogramming/pgxpoolmock"
-	"github.com/golang/mock/gomock"
+	"github.com/pashagolub/pgxmock/v3"
 )
 
-type RegexpMatcher struct {
-	pattern *regexp.Regexp
+// embed pgxmock.PgxConnIface
+type PgxPoolMock struct {
+	pgxmock.PgxPoolIface
 }
 
-func Regexp(pattern string) *RegexpMatcher {
-	return &RegexpMatcher{
-		pattern: regexp.MustCompile(pattern),
-	}
-}
-
-func (m *RegexpMatcher) String() string {
-	return fmt.Sprintf("matches pattern /%v/", m.pattern)
-}
-
-func (m *RegexpMatcher) Matches(x interface{}) bool {
-	s, ok := x.(string)
-	if !ok {
-		return false
-	}
-
-	return m.pattern.MatchString(s)
-}
+// add impl by your need
+// ...
 
 func TestPgxPoolHandler(t *testing.T) {
-	ctl := gomock.NewController(t)
-	defer ctl.Finish()
-
-	mockPool := pgxpoolmock.NewMockPgxPool(ctl)
-	PgxPool = func() pgxpoolmock.PgxPool {
-		return mockPool
+	mock, err := pgxmock.NewPool(pgxmock.QueryMatcherOption(pgxmock.QueryMatcherRegexp))
+	if err != nil {
+		t.Error(err)
 	}
 
-	rows := pgxpoolmock.NewRows([]string{"result"}).AddRow(1).ToPgxRows()
-	mockPool.EXPECT().Query(gomock.Any(), Regexp("select")).Return(rows, nil)
+	PgxPool = func() PgxPoolIface {
+		return &PgxPoolMock{mock}
+	}
 
-	if err := PgxPoolHandler(); err != nil {
+	row := pgxmock.NewRows([]string{"result"}).AddRow(1)
+	mock.ExpectQuery("select").WillReturnRows(row)
+
+	if err = PgxPoolHandler(); err != nil {
 		t.Error(err)
 	}
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgconn/stmtcache"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/pashagolub/pgxmock/v3"
 )
 
 // embed pgxmock.PgxConnIface
@@ -19,12 +19,22 @@ type PgxConnMock struct {
 func (c *PgxConnMock) Config() *pgx.ConnConfig {
 	return nil
 }
+
 func (c *PgxConnMock) IsClosed() bool {
 	return false
 }
-func (c *PgxConnMock) StatementCache() stmtcache.Cache {
+
+func (c *PgxConnMock) DeallocateAll(ctx context.Context) error {
 	return nil
 }
+func (c *PgxConnMock) LoadType(ctx context.Context, typeName string) (*pgtype.Type, error) {
+	return nil, nil
+}
+
+func (c *PgxConnMock) TypeMap() *pgtype.Map {
+	return nil
+}
+
 func (c *PgxConnMock) WaitForNotification(ctx context.Context) (*pgconn.Notification, error) {
 	return nil, nil
 }
